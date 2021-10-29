@@ -16,7 +16,7 @@ def addRouter(current_user):
     if not current_user['admin']:
         return jsonify({'status': 'error', 'info': 'Insufficient privileges'})
     
-    router = Router(**request.form)
+    router = Router(**request.json)
     router.save()
     return jsonify(router)
 
@@ -38,7 +38,7 @@ def editRouter(current_user, id):
     if router is None:
         return jsonify({'status': 'error', 'info': 'Unknown router'})
     
-    router.update(**request.form)
+    router.update(**request.json)
     return jsonify(Router.objects.with_id(id))
 
 @bp.route('/router/<id>', methods=['DELETE'])
@@ -73,7 +73,7 @@ def addNewRouterUsers(current_user, id):
     if Router.objects.with_id(id) is None:
         return jsonify({'status': 'error', 'info': 'Unknown router'})
     
-    user = RouterUser(**request.form, router=id)
+    user = RouterUser(**request.json, router=id)
     user.save()
 
     return jsonify(user.to_json())
@@ -95,7 +95,7 @@ def editRouterUser(current_user, id_router, id_user):
     if user is None:
         return jsonify({'status': 'error', 'info': 'Unknown user'})
     
-    user.update(**request.form)
+    user.update(**request.json)
     return jsonify(RouterUser.objects.with_id(id_user).to_json())
 
 @bp.route('/router/<id_router>/user/<id_user>', methods=['DELETE'])

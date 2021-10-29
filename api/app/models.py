@@ -3,7 +3,7 @@ from app import MongoDB
 class User(MongoDB.Document):
     username = MongoDB.StringField(required=True, unique=True)
     password = MongoDB.StringField(required=True)
-    admin = MongoDB.BooleanField(default=False)
+    admin = MongoDB.BooleanField(default=True)
 
     def to_json(self):
         return {'id': str(self.id), 'username': self.username, 'admin': self.admin}

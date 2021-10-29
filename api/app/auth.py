@@ -10,8 +10,8 @@ def token_required(f):
     @functools.wraps(f)
     def decorator(*args, **kwargs):
         token = None
-        if 'payload' in request.headers:
-            token = request.headers['payload']
+        if 'Authorization' in request.headers:
+            token = request.headers['Authorization'].split(' ')[1]
         if not token:
             return jsonify({'status': 'error', 'info': 'Missing token'})
         
@@ -28,10 +28,10 @@ bp = Blueprint('auth', __name__, url_prefix='/auth')
 
 @bp.route('/register', methods=['POST'])
 def register():
-    if 'username' not in request.form or 'password' not in request.form:
+    if 'username' not in request.json or 'password' not in request.json:
         return jsonify({'status': 'error', 'info': 'Invalid register info'})
-    username = request.form['username']
-    password = request.form['password']
+    username = request.json['username']
+    password = request.json['password']
     err = None
 
     if not username:
@@ -50,11 +50,11 @@ def register():
 
 @bp.route('/login', methods=['POST'])
 def login():
-    if 'username' not in request.form or 'password' not in request.form:
+    if 'username' not in request.json or 'password' not in request.json:
         return jsonify({'status': 'error', 'info': 'Invalid login info'})
     
-    username = request.form['username']
-    password = request.form['password']
+    username = request.json['username']
+    password = request.json['password']
     
     try:
         user = User.objects.get(username=username)
@@ -72,7 +72,7 @@ def login():
 def modifyUser(current_user):
     user = User.objects.with_id(current_user['id'])
 
-    user.update(**request.form)
+    user.update(**request.json)
     return jsonify({'status': 'ok'})
 
 @bp.route('/delete', methods=['DELETE'])
