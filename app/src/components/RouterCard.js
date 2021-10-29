@@ -8,6 +8,9 @@ import {
 } from "@mui/material";
 import NewUserDialog from "./NewUserDialog";
 import ListRouterUserDialog from "./ListRouterUserDialog";
+import axios from "axios";
+import config from "../config";
+import { authenticationService } from "../services/Session";
 
 export default function RouterCard({router}) {
     const [openNewUser, setOpenNewUser] = React.useState(false)
@@ -25,6 +28,17 @@ export default function RouterCard({router}) {
     const handleCloseUsers = () => {
         setOpenUsers(false)
     }
+    const deleteRouter = (event) => {
+        axios.delete(config.host + `network/router/${router._id.$oid}`, {
+            headers: {
+                Authorization: 'Bearer ' + authenticationService.currentUserValue
+            }
+        }).then((res) => {
+            let data = res.data
+            console.log(data)
+            window.location.reload(true)
+        })
+    }
 
     return <>
         <Card sx={{minWidth: 275}}>
@@ -41,8 +55,8 @@ export default function RouterCard({router}) {
             </CardContent>
             <CardActions>
                 <Button size='small' color='secondary' onClick={handleOpenUsers}>View users</Button>
-                <Button size='small' color='secondary'>Active RSA</Button>
                 <Button size='small' color='secondary' onClick={handleOpenNew}>Add new user</Button>
+                <Button size='small' color='error' onClick={deleteRouter}>Delete</Button>
             </CardActions>
         </Card>
         <NewUserDialog router={router} openDialog={openNewUser} onClose={handleCloseNew} />

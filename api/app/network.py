@@ -1,8 +1,65 @@
 from flask import Blueprint, request, jsonify
 from app.auth import token_required
 from app.models import Router, RouterUser
+from scripts.router import *
 
 bp = Blueprint('network', __name__, url_prefix='/network')
+
+@bp.route('/configure', methods=['POST'])
+@token_required
+def configureNetwork(current_user):
+    if not current_user['admin']:
+        return jsonify({'status': 'error', 'info': 'Insufficient privileges'})
+    
+    routers = Router.sort_by_ip(Router.objects(), reverse=True)
+    errs = 0
+    print(f'Method: {request.json["method"]}')
+    for router in routers:
+        print(router.ip)
+        if request.json['method'] == 'rip':
+            resp = set_rip(router.ip)
+        elif request.json['method'] == 'ospf':
+            resp = set_ospf(router.ip)
+        elif request.json['method'] == 'eigrp':
+            resp = set_eigrp(router.ip)
+        if resp['status'] == 'error':
+            errs += 1
+    if errs > 0:
+        return jsonify({'status': 'error', 'info': f'Error rate {errs}/{len(routers)}'})
+    return jsonify({'status': 'ok'})
+
+@bp.route('/configure/users', methods=['POST'])
+@token_required
+def addGlobalUser(current_user):
+    if not current_user['admin']:
+        return jsonify({'status': 'error', 'info': 'Insufficient privileges'})
+    
+    routers = Router.objects()
+    errors = 0
+    for router in routers:
+        resp = init_ssh(router.hostname, router.ip)
+        if resp['status'] == 'error':
+            return resp
+        resp = create_router_user(router.ip, {
+            'username': request.json['username'],
+            'privilege': int(request.json['privilege']),
+            'password': request.json['password']
+        })
+        if resp['status'] == 'ok':
+            router_info = {
+                'username': request.json['username'],
+                'privilege': int(request.json['privilege']),
+                'password': request.json['password'],
+                'router': router.id
+            }
+            user = RouterUser(**router_info)
+            user.save()
+        elif resp['status'] == 'error':
+            errors += 1
+    if errors > 0:
+        return jsonify({'status': 'error', 'info': f'Errors {errors}/{len(routers)}'})
+    else:
+        return jsonify({'status': 'ok'})
 
 @bp.route('/router', methods=['GET'])
 @token_required
@@ -70,13 +127,24 @@ def listRouterUsers(current_user, id):
 def addNewRouterUsers(current_user, id):
     if not current_user['admin']:
         return jsonify({'status': 'error', 'info': 'Insufficient privileges'})
-    if Router.objects.with_id(id) is None:
+    router = Router.objects.with_id(id)
+    if router is None:
         return jsonify({'status': 'error', 'info': 'Unknown router'})
     
-    user = RouterUser(**request.json, router=id)
-    user.save()
-
-    return jsonify(user.to_json())
+    resp = init_ssh(router.hostname, router.ip)
+    if resp['status'] == 'error':
+            return resp
+    resp = create_router_user(router.ip, {
+        'username': request.json['username'],
+        'privilege': int(request.json['privilege']),
+        'password': request.json['password']
+    })
+    if resp['status'] == 'ok':
+        user = RouterUser(**request.json, router=id)
+        user.save()
+        return jsonify(user.to_json())
+    else:
+        return jsonify(resp)
 
 @bp.route('/router/<id_router>/user/<id_user>', methods=['GET'])
 @token_required
@@ -91,12 +159,33 @@ def getRouterUser(current_user, id_router, id_user):
 def editRouterUser(current_user, id_router, id_user):
     if not current_user['admin']:
         return jsonify({'status': 'error', 'info': 'Insufficient privileges'})
+    
     user = RouterUser.objects.with_id(id_user)
     if user is None:
         return jsonify({'status': 'error', 'info': 'Unknown user'})
+    delete_router_user(user.router.ip, {
+        'username': user.username,
+        'privilege': user.privilege,
+        'password': user.password
+    })
     
-    user.update(**request.json)
-    return jsonify(RouterUser.objects.with_id(id_user).to_json())
+    username = request.json['username']
+    privilege = int(request.json['privilege'])
+    password = request.json['password']
+    resp = create_router_user(user.router.ip, {
+        'username': username,
+        'privilege': privilege,
+        'password': password
+    })
+    if resp['status'] == 'ok':
+        user.update({
+            'username': username,
+            'privilege': privilege,
+            'password': password
+        })
+        return jsonify(RouterUser.objects.with_id(id_user).to_json())
+    else:
+        return jsonify(resp)
 
 @bp.route('/router/<id_router>/user/<id_user>', methods=['DELETE'])
 @token_required
@@ -107,6 +196,12 @@ def deleteRouterUser(current_user, id_router, id_user):
     user = RouterUser.objects.with_id(id_user)
     if user is None:
         return jsonify({'status': 'error', 'info': 'Unknown user'})
-    user.delete()
-
-    return jsonify({'status': 'ok'})
+    
+    result = delete_router_user(user.router.ip, {
+        'username': user.username,
+        'privilege': user.privilege,
+        'password': user.password
+    })
+    if result['status'] == 'ok':
+        user.delete()
+    return jsonify(result)
