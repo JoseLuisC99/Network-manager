@@ -4,6 +4,7 @@ import TabContext from "@mui/lab/TabContext";
 import {TabList, TabPanel} from "@mui/lab";
 import RouterList from "./RouterList";
 import NetworkConfig from "./NetworkConfig";
+import Topology from "./Topology";
 
 export default function Main() {
     const [tabValue, setTabValue] = React.useState('1')
@@ -18,6 +19,7 @@ export default function Main() {
                     <Tab label='Network' value='1' />
                     <Tab label='Routers' value='2' />
                     <Tab label='Users' value='3' />
+                    <Tab label='Topology' value='4' />
                 </TabList>
             </Box>
             <TabPanel value='1'>
@@ -28,6 +30,9 @@ export default function Main() {
             </TabPanel>
             <TabPanel value='3'>
                 Hola, mundo!
+            </TabPanel>
+            <TabPanel value='4'>
+                <Topology />
             </TabPanel>
         </TabContext>
     </Box>
