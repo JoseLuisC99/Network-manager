@@ -2,6 +2,9 @@ from flask import Blueprint, request, jsonify
 from app.auth import token_required
 from app.models import Router, RouterUser
 from scripts.router import *
+from scripts.protocols import *
+from scripts.users import *
+from scripts.cdp import *
 
 bp = Blueprint('network', __name__, url_prefix='/network')
 

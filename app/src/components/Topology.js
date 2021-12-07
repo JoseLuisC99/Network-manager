@@ -20,8 +20,9 @@ export default function Topology() {
                 if(data.info === 'Invalid token')
                     authenticationService.logout()
             } else {
-                if(force || data.hasChange)
-                    setTopology(data.topology)
+                if(force || data.topology != topology)
+                    console.log('Cambio')
+                setTopology(data.topology)
             }
         }).catch((err) => {
             console.log('Retrying...')
@@ -33,7 +34,7 @@ export default function Topology() {
     useEffect(() => {
         let interval = setInterval(() => {
             getTopology()
-        }, 10000)
+        }, 90000)
     }, [])
 
     let nextConfig = {

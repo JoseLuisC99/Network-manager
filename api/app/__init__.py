@@ -38,7 +38,10 @@ def create_app(test_config=None):
 
     from . import auth
     from . import network
+    from . import topology
+
     app.register_blueprint(auth.bp)
     app.register_blueprint(network.bp)
+    app.register_blueprint(topology.bp)
     
     return app
