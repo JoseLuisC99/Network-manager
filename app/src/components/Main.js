@@ -5,6 +5,8 @@ import {TabList, TabPanel} from "@mui/lab";
 import RouterList from "./RouterList";
 import NetworkConfig from "./NetworkConfig";
 import Topology from "./Topology";
+import InterfacesInfo from "./InterfacesInfo";
+import LinksInfo from "./LinksInfo";
 
 export default function Main() {
     const [tabValue, setTabValue] = React.useState('1')
@@ -18,8 +20,9 @@ export default function Main() {
                 <TabList onChange={handleTabChange}>
                     <Tab label='Network' value='1' />
                     <Tab label='Routers' value='2' />
-                    <Tab label='Users' value='3' />
-                    <Tab label='Topology' value='4' />
+                    <Tab label='Topology' value='3' />
+                    <Tab label='Interfaces' value='4' />
+                    <Tab label='Links' value='5' />
                 </TabList>
             </Box>
             <TabPanel value='1'>
@@ -29,10 +32,13 @@ export default function Main() {
                 <RouterList />
             </TabPanel>
             <TabPanel value='3'>
-                Hola, mundo!
+                <Topology />
             </TabPanel>
             <TabPanel value='4'>
-                <Topology />
+                <InterfacesInfo />
+            </TabPanel>
+            <TabPanel value='5'>
+                <LinksInfo />
             </TabPanel>
         </TabContext>
     </Box>

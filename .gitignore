@@ -1,6 +1,8 @@
 # App files
 api/connections.json
 api/topology.json
+api/interfaces.json
+api/link.json
 api/test.py
 
 # Byte-compiled / optimized / DLL files

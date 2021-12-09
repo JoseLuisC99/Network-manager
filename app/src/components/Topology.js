@@ -7,7 +7,7 @@ import config from "../config";
 import "react-next-ui/build/css/next.min.css";
 
 export default function Topology() {
-    const [topology, setTopology] = React.useState({})
+    const [topology, setTopology] = useState({})
 
     const getTopology = (force = false) => {
         axios.get(config.host + 'info/topology', {
@@ -22,7 +22,7 @@ export default function Topology() {
             } else {
                 if(force || data.topology != topology)
                     console.log('Cambio')
-                setTopology(data.topology)
+                setTopology(data)
             }
         }).catch((err) => {
             console.log('Retrying...')
@@ -34,7 +34,7 @@ export default function Topology() {
     useEffect(() => {
         let interval = setInterval(() => {
             getTopology()
-        }, 90000)
+        }, 60000)
     }, [])
 
     let nextConfig = {
