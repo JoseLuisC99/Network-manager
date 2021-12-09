@@ -1,8 +1,10 @@
 from flask import Blueprint, jsonify
 from app.auth import token_required
 from app.models import Interface, Router
+from utils.json import JSONEncoder
 import json
 import numpy as np
+from bson.json_util import dumps
 
 bp = Blueprint('info', __name__, url_prefix='/info')
 
@@ -14,8 +16,24 @@ def getTopology():
 
 @bp.route('/interfaces', methods=['GET'])  
 def getInputPackages():
-    interfaces = Interface.objects()
-    return jsonify(interfaces)
+    interfaces = Interface.objects().aggregate([
+        {
+            '$lookup': {
+                'from': 'router',
+                'localField': 'router',
+                'foreignField': '_id',
+                'as': 'router'
+            }
+        },
+        {
+            '$group': {
+                '_id': '$router',
+                'interfaces': {'$push': '$$ROOT'}
+            }
+        }
+    ])
+    interfaces = dumps(interfaces)
+    return jsonify(json.loads(interfaces))
 
 @bp.route('/interfaces/<router_id>', methods=['GET'])  
 def getInputPackagesByRouter(router_id):
