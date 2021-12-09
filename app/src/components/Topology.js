@@ -10,7 +10,7 @@ export default function Topology() {
     const [topology, setTopology] = React.useState({})
 
     const getTopology = (force = false) => {
-        axios.get(config.host + 'topology/', {
+        axios.get(config.host + 'info/topology', {
             headers: {
                 Authorization: 'Bearer ' + authenticationService.currentUserValue
             }

@@ -1,3 +1,8 @@
+# App files
+api/connections.json
+api/topology.json
+api/test.py
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

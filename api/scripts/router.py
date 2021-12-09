@@ -1,7 +1,7 @@
 from netmiko import ConnectHandler, NetmikoTimeoutException, NetmikoAuthenticationException
 from collections import namedtuple
 
-Router = namedtuple('Router', ['destination_host', 'management_ip'])
+RouterInfo = namedtuple('Router', ['destination_host', 'management_ip'])
 
 def send_command(device, f):
     try:
@@ -18,14 +18,13 @@ def send_command(device, f):
     except Exception:
         return {'status': 'error', 'info': 'Network error'}
 
-def get_interfaces(ip, user_info):
+def get_interfaces(ip):
     device = {
-        'device_type': 'cisco_ios',
+        'device_type': 'cisco_ios_telnet',
         'host': ip,
-        'username': user_info['username'],
-        'password': user_info['password']
+        'password': 'pass1234'
     }
-    def router_function(ssh):
-        output = ssh.send_command('show ip interface brief', use_textfsm=True)
+    def router_function(telnet):
+        output = telnet.send_command('show ip interface brief', use_textfsm=True)
         return output
     return send_command(device, router_function)
