@@ -42,8 +42,11 @@ def setMIB(ip, oid, value):
         print('%s at %s' % (errorStatus.prettyPrint(), 
             errorIndex and varBinds[int(errorIndex) - 1][0] or '?'))
     else:
+        data = {}
         for varBind in varBinds:
-            print(' = '.join([x.prettyPrint() for x in varBind]))
+            varName, varValue = varBind
+            data[str(varName)] = varValue
+        return dict(data)
 
 def ifNumber(ip):
     info = getMIB(ip, '1.3.6.1.2.1.2.1.0')
@@ -97,4 +100,20 @@ def getSysLocation(ip):
 
 def getSysDescr(ip):
     name = getMIB(ip, '1.3.6.1.2.1.1.1.0')
+    return str(name['1.3.6.1.2.1.1.1.0'])
+
+def setSysName(ip, value):
+    name = setMIB(ip, '1.3.6.1.2.1.1.5.0', value)
+    return str(name['1.3.6.1.2.1.1.5.0'])
+
+def setSysContact(ip, value):
+    name = setMIB(ip, '1.3.6.1.2.1.1.4.0', value)
+    return str(name['1.3.6.1.2.1.1.4.0'])
+
+def setSysLocation(ip, value):
+    name = setMIB(ip, '1.3.6.1.2.1.1.6.0', value)
+    return str(name['1.3.6.1.2.1.1.6.0'])
+
+def setSysDescr(ip, value):
+    name = setMIB(ip, '1.3.6.1.2.1.1.1.0', value)
     return str(name['1.3.6.1.2.1.1.1.0'])
