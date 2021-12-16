@@ -73,7 +73,7 @@ def updateSystemInfo():
     print('System info updated.')
 
 def updateNetworkInfo(main_router):
-    print(f'[{datetime.datetime.now(): %Y-%m-d %H:%M:%S}] Updating network information...')
+    print(f'[{datetime.datetime.now(): %Y-%m-%d %H:%M:%S}] Updating network information...')
     getTopology(main_router)
     getInterfacesInfo()
     updateSystemInfo()

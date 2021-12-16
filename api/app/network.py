@@ -1,10 +1,9 @@
 from flask import Blueprint, request, jsonify
 from app.auth import token_required
 from app.models import Router, RouterUser
-from scripts.router import *
-from scripts.protocols import *
-from scripts.users import *
-from scripts.cdp import *
+from scripts.protocols import set_rip, set_ospf, set_eigrp
+from scripts.users import delete_router_user, init_ssh, create_router_user, delete_router_user
+from scripts.snmp import setSysName, setSysContact, setSysLocation
 
 bp = Blueprint('network', __name__, url_prefix='/network')
 
@@ -91,14 +90,20 @@ def getRouter(current_user, id):
 @bp.route('/router/<id>', methods=['PUT'])
 @token_required
 def editRouter(current_user, id):
+    router_info = request.json
     if not current_user['admin']:
         return jsonify({'status': 'error', 'info': 'Insufficient privileges'})
-    
     router = Router.objects.with_id(id)
     if router is None:
         return jsonify({'status': 'error', 'info': 'Unknown router'})
     
-    router.update(**request.json)
+    print(router_info)
+    setSysName(router.ip, router_info['hostname'])
+    setSysContact(router.ip, router_info['contact'])
+    setSysLocation(router.ip, router_info['location'])
+    # setSysDescr(router.ip, router_info['description'])
+
+    router.update(**router_info)
     return jsonify(Router.objects.with_id(id))
 
 @bp.route('/router/<id>', methods=['DELETE'])

@@ -4,7 +4,6 @@ from app.models import Interface, Router
 import json
 import numpy as np
 from bson.json_util import dumps
-from scripts.snmp import setSysName, setSysContact, setSysDescr, setSysLocation
 
 bp = Blueprint('info', __name__, url_prefix='/info')
 
@@ -74,20 +73,20 @@ def getLonkInfo():
         link_info[network] = {'interface_1': int_1.to_json(), 'interface_2': int_2.to_json(), 'loss_12': loss_12.tolist(), 'loss_21': loss_21.tolist()}
     return jsonify(link_info)
 
-@bp.route('/router', methods=['POST'])
-def addRouter():
-    router = request.json
-    setSysName(router['ip'], router['hostname'])
-    setSysDescr(router['ip'], router['description'])
-    setSysContact(router['ip'], router['contact'])
-    setSysLocation(router['ip'], router['location'])
+# @bp.route('/router', methods=['POST'])
+# def addRouter():
+#     router = request.json
+#     setSysName(router['ip'], router['hostname'])
+#     setSysDescr(router['ip'], router['description'])
+#     setSysContact(router['ip'], router['contact'])
+#     setSysLocation(router['ip'], router['location'])
 
-    Router.objects.with_id(router['id']).modify(
-        upsert=True, new=True,
-        hostname=router['hostname'],
-        description=router['description'],
-        contact=router['contact'],
-        location=router['location']
-    )
-    router.save()
-    return jsonify(router)
+#     Router.objects.with_id(router['id']).modify(
+#         upsert=True, new=True,
+#         hostname=router['hostname'],
+#         description=router['description'],
+#         contact=router['contact'],
+#         location=router['location']
+#     )
+#     router.save()
+#     return jsonify(router)

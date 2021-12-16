@@ -114,6 +114,7 @@ def setSysLocation(ip, value):
     name = setMIB(ip, '1.3.6.1.2.1.1.6.0', value)
     return str(name['1.3.6.1.2.1.1.6.0'])
 
-def setSysDescr(ip, value):
-    name = setMIB(ip, '1.3.6.1.2.1.1.1.0', value)
-    return str(name['1.3.6.1.2.1.1.1.0'])
+# def setSysDescr(ip, value):
+#     name = setMIB(ip, '1.3.6.1.2.1.1.1.0', value)
+#     print(name)
+#     return str(name['1.3.6.1.2.1.1.1.0'])

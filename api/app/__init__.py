@@ -44,7 +44,7 @@ def create_app(test_config=None):
 
         # Scheduler
         scheduler = BackgroundScheduler()
-        scheduler.add_job(tasks.updateNetworkInfo, 'interval', [main_router], seconds=150)
+        scheduler.add_job(tasks.updateNetworkInfo, 'interval', [main_router], seconds=120)
         # scheduler.add_job(tasks.getTopology, 'interval', [main_router], seconds=300)
         # scheduler.add_job(tasks.getInterfacesInfo, 'interval', seconds=240)
         # scheduler.add_job(tasks.updateSystemInfo, 'interval', seconds=120)
